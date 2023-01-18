@@ -1,13 +1,21 @@
-import { useState } from "react";
-import 'semantic-ui-css/semantic.min.css';
+import { useEffect, useState } from "react";
+import "semantic-ui-css/semantic.min.css";
 import { Button } from "reactstrap";
-import "./Register.css";
-import { product } from "../Services/login-service";
+import "../CommonStyles/CommonPages.css";
+import { addProduct } from "../../Services/login-service";
+import { useNavigate } from "react-router-dom";
 
-const Staff=()=> {
+const AddProduct = () => {
   const initialProduct = { name: "", quantity: "", price: "" };
   const [singleProduct, setsingleProduct] = useState(initialProduct);
-  // const [allProducts, setallProducts] = useState([]);
+  const [formErrors, setFormErrors] = useState({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem("isLoggedIn")) {
+      navigate(`/`);
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,22 +24,34 @@ const Staff=()=> {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(singleProduct);
-    product(singleProduct).then((response)=>{
-      console.log(response);
-      console.log("Success log");
-      setsingleProduct({
-        name:"",
-        quantity:"",
-        price:""
-      })      
-    })
+    setFormErrors(validate(singleProduct));
+    if (Object.keys(formErrors).length === 0) {
+      addProduct(singleProduct).then((response) => {
+        setsingleProduct({
+          name: "",
+          quantity: "",
+          price: "",
+        });
+      });
+    }
   };
 
+  const validate = (values) => {
+    const errors = {};
+    if (values.name.length === 0) {
+      errors.name = "Enter the Product Name!";
+    }
+    if (values.quantity == 0) {
+      errors.quantity = "Quantity should be greater than 0";
+    }
+    if (values.price == 0) {
+      errors.price = "Price should be greater than 0";
+    }
+    return errors;
+  };
 
   return (
     <div className="container">
-
       <form onSubmit={handleSubmit}>
         <h1>Add Products</h1>
         <div className="ui divider"></div>
@@ -46,6 +66,7 @@ const Staff=()=> {
               onChange={handleChange}
             />
           </div>
+          <p>{formErrors.name}</p>
           <div className="field">
             <label>Quantity</label>
             <input
@@ -56,6 +77,7 @@ const Staff=()=> {
               onChange={handleChange}
             />
           </div>
+          <p>{formErrors.quantity}</p>
           <div className="field">
             <label>Price</label>
             <input
@@ -66,13 +88,15 @@ const Staff=()=> {
               onChange={handleChange}
             />
           </div>
-          {/* <Button className="fluid ui button blue" type="reset">Add More</Button> */}
-          <br/>
-          <Button className="fluid ui button blue" type="submit">Submit</Button>
+          <p>{formErrors.price}</p>
+          <br />
+          <Button className="fluid ui button blue" type="submit">
+            Submit
+          </Button>
         </div>
       </form>
     </div>
   );
-}
+};
 
-export default Staff;
+export default AddProduct;

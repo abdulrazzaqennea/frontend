@@ -1,10 +1,17 @@
 import { useState } from "react";
-import 'semantic-ui-css/semantic.min.css';
-import { register } from '../Services/login-service';
-import "./Register.css";
+import "semantic-ui-css/semantic.min.css";
+import { registerUser } from "../Services/login-service";
+import "./CommonStyles/CommonPages.css";
 
-const Register=()=> {
-  const initialValues = { business: "", contact: "", license: "", gst: "", number: "", password: ""};
+const Register = () => {
+  const initialValues = {
+    business: "",
+    contact: "",
+    license: "",
+    gst: "",
+    number: "",
+    password: "",
+  };
   const [formValues, setFormValues] = useState(initialValues);
   const [formErrors, setFormErrors] = useState({});
 
@@ -16,23 +23,33 @@ const Register=()=> {
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormErrors(validate(formValues));
-    register(formValues).then((response)=>{
-      setFormValues({
-        business:"",
-        contact:"",
-        license:"",
-        gst:"",
-        number:"",
-        password:""
-      })
-    })
+    if (Object.keys(formErrors).length === 0) {
+      registerUser(formValues).then((response) => {
+        setFormValues({
+          business: "",
+          contact: "",
+          license: "",
+          gst: "",
+          number: "",
+          password: "",
+        });
+      });
+    }
   };
-
 
   const validate = (values) => {
     const errors = {};
-    if (values.business.length===0) {
+    if (values.business.length === 0) {
       errors.business = "Business Name is required!";
+    }
+    if (values.contact.length === 0) {
+      errors.contact = "Contact Name is required!";
+    }
+    if (values.gst.length != 15) {
+      errors.gst = "Enter a valid GST number!";
+    }
+    if (values.number.length !== 10) {
+      errors.number = "Enter a valid Phone number!";
     }
     if (!values.password) {
       errors.password = "Password is required";
@@ -46,7 +63,6 @@ const Register=()=> {
 
   return (
     <div className="container">
-
       <form onSubmit={handleSubmit}>
         <h1>Register</h1>
         <div className="ui divider"></div>
@@ -72,6 +88,7 @@ const Register=()=> {
               onChange={handleChange}
             />
           </div>
+          <p>{formErrors.contact}</p>
           <div className="field">
             <label>License</label>
             <input
@@ -92,6 +109,7 @@ const Register=()=> {
               onChange={handleChange}
             />
           </div>
+          <p>{formErrors.gst}</p>
           <div className="field">
             <label>Number</label>
             <input
@@ -102,6 +120,7 @@ const Register=()=> {
               onChange={handleChange}
             />
           </div>
+          <p>{formErrors.number}</p>
           <div className="field">
             <label>Password</label>
             <input
@@ -111,13 +130,13 @@ const Register=()=> {
               value={formValues.password}
               onChange={handleChange}
             />
-          <p>{formErrors.password}</p>
+            <p>{formErrors.password}</p>
           </div>
           <button className="fluid ui button blue">Submit</button>
         </div>
       </form>
     </div>
   );
-}
+};
 
 export default Register;

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import 'semantic-ui-css/semantic.min.css';
-import "./Login.css";
-import { useNavigate } from 'react-router-dom';
+import "semantic-ui-css/semantic.min.css";
+import "./Register";
+import { useNavigate } from "react-router-dom";
 
-const Login=()=> {
+const Login = () => {
   const navigate = useNavigate();
   const initialValues = { business: "", password: "" };
   const [formValues, setFormValues] = useState(initialValues);
@@ -23,18 +23,19 @@ const Login=()=> {
 
   useEffect(() => {
     if (Object.keys(formErrors).length === 0 && isSubmit) {
-      // console.log(formValues);
       userLoggedIn(formValues);
     }
   }, [formErrors]);
 
-  const userLoggedIn=(formValues)=>{
-    if(formValues.business==="Admin"){
+  const userLoggedIn = (formValues) => {
+    if (formValues.business === "Admin") {
+      localStorage.setItem("isLoggedIn", "1");
       navigate(`/Admin`);
-    } else {
-      navigate(`/Common`,{state:formValues});
-    } 
-  }
+    } else if (formValues.business === "user") {
+      localStorage.setItem("isLoggedIn", 1);
+      navigate(`/Common`, { state: formValues });
+    }
+  };
   const validate = (values) => {
     const errors = {};
     if (!values.password) {
@@ -47,7 +48,6 @@ const Login=()=> {
 
   return (
     <div className="container">
-
       <form onSubmit={handleSubmit}>
         <h1>Login Form</h1>
         <div className="ui divider"></div>
@@ -60,6 +60,7 @@ const Login=()=> {
               placeholder="Business"
               value={formValues.business}
               onChange={handleChange}
+              required
             />
           </div>
           <p>{formErrors.username}</p>
@@ -71,15 +72,24 @@ const Login=()=> {
               placeholder="Password"
               value={formValues.password}
               onChange={handleChange}
+              required
+              minLength={6}
             />
           </div>
           <p>{formErrors.password}</p>
-          <button class="ui button blue" >submit</button>
-          <button class="ui button blue" onClick={() => {navigate(`/Register`)}}>Register</button>
+          <button class="ui button blue">submit</button>
+          <button
+            class="ui button blue"
+            onClick={() => {
+              navigate(`/Register`);
+            }}
+          >
+            Register
+          </button>
         </div>
       </form>
     </div>
   );
-}
+};
 
 export default Login;
